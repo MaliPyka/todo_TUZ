@@ -1,0 +1,48 @@
+body {
+    font-family: sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center; /* Центрируем всё по горизонтали */
+    padding-top: 50px;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Легкая тень */
+    width: 350px;
+}
+
+h1 {
+    text-align: center
+}
+
+.input-group {
+    display: flex; /* Инпут и кнопка в одну линию */
+    gap: 10px;    /* Расстояние между ними */
+    margin-bottom: 20px;
+}
+
+input {
+    flex-grow: 1; /* Инпут забирает всё свободное место */
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.task-item {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 5px 0;
+}
+
