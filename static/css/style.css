@@ -41,8 +41,36 @@ button {
 }
 
 .task-item {
-    background: #fff;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: 100%;
+    box-sizing: border-box; /* Чтобы padding не раздувал ширину */
+    padding: 10px 0;
     border-bottom: 1px solid #eee;
-    padding: 5px 0;
 }
+
+.task-checkbox {
+    flex: 0 0 20px; /* Не растет, не сжимается, всегда 20px */
+    margin-right: 5px !important;
+}
+
+.task-text {
+    flex: 1 1 auto !important; /* Забирает всё свободное место */
+    text-align: left !important;
+    word-break: break-word; /* Чтобы длинный текст не уходил за горизонт */
+}
+
+.task-delete {
+    flex: 0 0 30px; /* Не растет, не сжимается, ширина 30px */
+    margin-left: auto; /* Дополнительный толчок вправо */
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.task-delete:hover {
+    background-color: #cc0000;
+}
+
 
