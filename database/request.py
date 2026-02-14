@@ -1,5 +1,5 @@
 from aiogram.types import Update
-from sqlalchemy import Insert, select
+from sqlalchemy import Insert, select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import update
 
@@ -8,28 +8,22 @@ from database.models import async_session, Task
 
 
 async def create_task(text: str):
-    print(f"DEBUG: Вызов async_session: {async_session}")
-
-    # 1. Проверяем, что возвращает вызов фабрики сессий
-    session_ctx = async_session()
-    print(f"DEBUG: Контекстный менеджер сессии: {session_ctx}, тип: {type(session_ctx)}")
-
-    async with session_ctx as session:
+    async with async_session() as session:
         new_task = Task(text=text)
         session.add(new_task)
-
-        # 2. Проверяем, что возвращает commit() ПЕРЕД тем как сделать await
-        commit_coroutine = session.commit()
-        print(f"DEBUG: Результат commit(): {commit_coroutine}, тип: {type(commit_coroutine)}")
-
-        if commit_coroutine is None:
-            print("ОШИБКА: commit() вернул None! Проверьте настройки SQLAlchemy.")
-        else:
-            await commit_coroutine
+        await session.commit()
+        await session.refresh(new_task)
+        return new_task
 
 async def get_task():
     async with async_session() as session:
         query = await session.execute(select(Task))
         tasks = query.scalars().all()
         return tasks
+
+
+async def delete_task(task_id: int):
+    async with async_session() as session:
+        await session.execute(delete(Task).where(Task.id == task_id))
+        await session.commit()
 

@@ -11,44 +11,51 @@ function renderTask(text, id) {
         <button class="task-delete">⛔</button>
     `;
 
-    // Удаление пока только с экрана (для удаления из БД нужен DELETE запрос)
-    taskDiv.querySelector('.task-delete').onclick = () => taskDiv.remove();
+    const deleteBtn = taskDiv.querySelector('.task-delete');
 
-    const checkbox = taskDiv.querySelector('.task-checkbox');
-    const taskText = taskDiv.querySelector('.task-text');
-    checkbox.onchange = () => {
-        taskText.style.textDecoration = checkbox.checked ? 'line-through' : 'none';
-        taskText.style.color = checkbox.checked ? 'gray' : 'black';
+    // Делаем функцию удаления асинхронной
+    deleteBtn.onclick = async () => {
+        if (!id) {
+            taskDiv.remove();
+            return;
+        }
+
+        const response = await fetch(`/tasks/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            //удаляет задачу с экрана
+            taskDiv.remove();
+        } else {
+            alert("Ошибка при удалении из базы");
+        }
     };
 
     list.prepend(taskDiv);
 }
 
-// Добавление задачи
+
 async function addTask() {
     const input = document.getElementById('taskInput');
-    const taskValue = input.value.trim();
+    const title = input.value.trim(); // веденный текст
 
-    if (!taskValue) return;
+    if (title === "") return;
 
     try {
-        // ОБЯЗАТЕЛЬНО начинаем путь со слэша /
         const response = await fetch('/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: taskValue }) // text совпадает с твоей схемой
+            body: JSON.stringify({ text: title })
         });
 
         if (response.ok) {
-            // Твой сервер возвращает {"message": "Task Created"}, ID там нет
-            renderTask(taskValue, null);
+            const result = await response.json();
+            renderTask(title, result.id);
             input.value = "";
-        } else {
-            const err = await response.json();
-            console.error("Ошибка валидации (422):", err);
         }
-    } catch (e) {
-        console.error("Сервер выключен или ошибка сети", e);
+    } catch (error) {
+        console.error("Ошибка:", error);
     }
 }
 
@@ -58,14 +65,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch('/tasks');
         if (response.ok) {
             const tasks = await response.json();
-            // Очищаем список перед загрузкой, чтобы не дублировать
             document.getElementById('taskList').innerHTML = '';
             tasks.forEach(task => {
-                // Предполагаем, что из базы приходят объекты {text: "...", id: ...}
                 renderTask(task.text, task.id);
             });
         }
     } catch (e) {
         console.error("Не удалось загрузить задачи");
     }
+
+
 });
