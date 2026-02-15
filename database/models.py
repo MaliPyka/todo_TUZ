@@ -1,7 +1,7 @@
 import aiosqlite
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Integer, ForeignKey, select, BigInteger, func, DateTime
+from sqlalchemy import String, Integer, ForeignKey, select, BigInteger, func, DateTime, Boolean
 from datetime import datetime
 
 DB_PATH = 'database.db'
@@ -25,6 +25,7 @@ async def get_db():
 class Task(Base):
     __tablename__ = 'tasks'
 
-    id: Mapped[int] = mapped_column(primary_key=True, auto_increment=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     text: Mapped[str] = mapped_column(String, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    is_completed: Mapped[bool] = mapped_column(Boolean, default=False)

@@ -1,9 +1,5 @@
-from fastapi import APIRouter, HTTPException
-from fastapi import Response, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from database.models import get_db, Task
-from database.request import create_task, get_task, delete_task
+from fastapi import APIRouter
+from database.request import create_task, get_task, delete_task, update_task_status
 from Schemas import TaskSchema
 
 api_router = APIRouter(
@@ -30,3 +26,10 @@ async def get_tasks():
 async def cmd_delete_task(task_id: int):
     await delete_task(task_id)
     return {"message": "Task Deleted"}
+
+@api_router.patch("/tasks/{task_id}/status")
+async def cmd_update_task(task_id: int, status: bool):
+    await update_task_status(task_id, status)
+    return {"status": "updated", "new_state": status}
+
+

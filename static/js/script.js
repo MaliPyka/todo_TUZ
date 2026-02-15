@@ -1,18 +1,37 @@
 // Функция для отрисовки задачи в списке
-function renderTask(text, id) {
+function renderTask(text, id, is_completed) {
     const list = document.getElementById('taskList');
     const taskDiv = document.createElement('div');
     taskDiv.className = 'task-item';
     taskDiv.dataset.id = id;
 
     taskDiv.innerHTML = `
-        <input type="checkbox" class="task-checkbox">
-        <span class="task-text">${text}</span>
+        <input type="checkbox" class="task-checkbox" ${is_completed ? 'checked' : ''}>
+        <span class="task-text ${is_completed ? 'strikethrough' : ''}">${text}</span>
         <button class="task-delete">⛔</button>
     `;
 
     const deleteBtn = taskDiv.querySelector('.task-delete');
+    const checkboxBtn = taskDiv.querySelector('.task-checkbox');
+    const textSpan = taskDiv.querySelector('.task-text');
 
+    if (is_completed) {
+        textSpan.style.textDecoration = 'line-through';
+        textSpan.style.color = 'gray';
+    }
+
+    checkboxBtn.addEventListener('change',async function(){
+        textSpan.style.textDecoration = this.checked ? 'line-through' : 'none';
+        textSpan.style.color = this.checked ? 'gray' : 'black';
+
+        const response = await fetch(`/tasks/${id}/status?status=${this.checked}`, {
+            method: "PATCH"
+        });
+
+        if (!response.ok) {
+            alert("Не удалось изменить статус!")
+        }
+    });
     // Делаем функцию удаления асинхронной
     deleteBtn.onclick = async () => {
         if (!id) {
@@ -67,7 +86,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             const tasks = await response.json();
             document.getElementById('taskList').innerHTML = '';
             tasks.forEach(task => {
-                renderTask(task.text, task.id);
+                renderTask(task.text, task.id, task.is_completed);
             });
         }
     } catch (e) {
