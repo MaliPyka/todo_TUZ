@@ -32,7 +32,6 @@ function renderTask(text, id, is_completed) {
             alert("Не удалось изменить статус!")
         }
     });
-    // Делаем функцию удаления асинхронной
     deleteBtn.onclick = async () => {
         if (!id) {
             taskDiv.remove();
@@ -92,6 +91,5 @@ window.addEventListener('DOMContentLoaded', async () => {
     } catch (e) {
         console.error("Не удалось загрузить задачи");
     }
-
 
 });
