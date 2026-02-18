@@ -10,7 +10,7 @@ engine = create_async_engine(f"sqlite+aiosqlite:///{DB_PATH}")
 
 async_session = async_sessionmaker(
     bind=engine,
-    class_=AsyncSession, # Явно указываем класс
+    class_=AsyncSession,
     expire_on_commit=False
 )
 

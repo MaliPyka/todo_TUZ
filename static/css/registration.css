@@ -107,3 +107,33 @@ label {
 .auth-footer a:hover {
     text-decoration: underline;
 }
+
+.error-alert {
+    display: none; /* Скрыто по умолчанию */
+    background-color: rgba(255, 77, 77, 0.1); /* Прозрачный красный фон */
+    color: #ff4d4d;                           /* Яркий красный текст */
+    border: 1px solid #ff4d4d;                /* Четкая красная граница */
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(255, 77, 77, 0.2); /* Легкое свечение */
+    backdrop-filter: blur(5px);               /* Эффект матового стекла */
+    animation: fadeInShake 0.4s ease;
+}
+
+/* Класс для успешного состояния */
+.error-alert.success {
+    background-color: rgba(46, 204, 113, 0.15); /* Прозрачный зеленый */
+    color: #2ecc71;                            /* Яркий зеленый текст */
+    border-color: #2ecc71;                     /* Зеленая рамка */
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+}
+
+/* Анимация появления с легкой тряской */
+@keyframes fadeInShake {
+    0% { opacity: 0; transform: translateY(-10px); }
+    50% { transform: translateX(4px); }
+    100% { opacity: 1; transform: translateY(0); }
+}

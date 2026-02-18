@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 from ApiRouter import api_router
 from database.models import engine, Base
@@ -21,7 +21,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def read_index():
-    return FileResponse("static/index.html")
+    return RedirectResponse(url="/login")
 
 @app.get("/register", response_class=HTMLResponse)
 async def get_register_page(request: Request):

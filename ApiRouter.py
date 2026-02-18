@@ -42,16 +42,12 @@ async def cmd_registration(data: LoginSchema):
 @api_router.post("/users/login")
 async def cmd_login(data: LoginSchema):
     logins = await get_all_logins()
-    if data.login not in logins:
-        return {"status": "failed", "Message": "Login not found"}
-    hashed_password = await get_hashed_password(data.login)
-    if verify_hashed_password(data.password, hashed_password):
-        return {"status": "ok", "message": "Welcome"}
+    if data.login in logins:
+        hashed_password = await get_hashed_password(data.login)
+        if await verify_hashed_password(data.password, hashed_password):
+            return {"status": "ok", "message": "Login Successful"}
+        else:
+            return {"status": "failed", "Message": "Неверный пароль!"}
     else:
-        return {"status": "failed", "Message": "Wrong password"}
-
-
-
-
-
+        return {"status": "failed", "Message": "Логин не найден!"}
 
