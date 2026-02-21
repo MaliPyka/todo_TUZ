@@ -1,76 +1,250 @@
+/* Общие настройки */
 body {
     font-family: 'Inter', sans-serif;
     background-color: #121212;
     display: flex;
-    justify-content: center; /* Центрируем всё по горизонтали */
+    justify-content: center;
     padding-top: 50px;
+    margin: 0;
 }
 
 .container {
     background: #f4f7f6;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Легкая тень */
-    width: 350px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    width: 400px; /* Немного увеличил, чтобы тегам было просторнее */
 }
 
 h1 {
-    text-align: center
-}
-
-.input-group {
-    display: flex; /* Инпут и кнопка в одну линию */
-    gap: 10px;    /* Расстояние между ними */
+    text-align: center;
+    color: #1a1a1a;
     margin-bottom: 20px;
 }
 
-input {
-    flex-grow: 1; /* Инпут забирает всё свободное место */
-    padding: 8px;
+/* Группа ввода */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+input[type="text"] {
+    flex-grow: 1;
+    padding: 10px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
+    outline: none;
+    transition: border 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: #007bff;
 }
 
 button {
     background: #007bff;
     color: white;
     border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
+    padding: 10px 18px;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
 }
 
+button:hover {
+    background: #0056b3;
+}
+
+/* Карточка задачи */
 .task-item {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    width: 100%;
-    box-sizing: border-box; /* Чтобы padding не раздувал ширину */
-    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
     border-bottom: 1px solid #eee;
+    width: 100%;
 }
 
 .task-checkbox {
-    flex: 0 0 20px; /* Не растет, не сжимается, всегда 20px */
-    margin-right: 5px !important;
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.task-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap; /* Позволяет тегу переехать ниже, если текст слишком длинный */
+    flex-grow: 1;
+    min-width: 0; /* Магия flexbox для корректного переноса слов */
 }
 
 .task-text {
-    flex: 1 1 auto !important; /* Забирает всё свободное место */
-    text-align: left !important;
-    word-break: break-word; /* Чтобы длинный текст не уходил за горизонт */
+    font-size: 0.95rem;
+    color: #000000;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+    color: #94a3b8 !important;
+}
+
+/* Пилюля тега */
+.task-tag-badge {
+    background-color: #e2e8f0;
+    color: #475569;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    border: 1px solid #cbd5e1;
+    white-space: nowrap;
+}
+
+/* Контейнер кнопок управления (тег и удаление) */
+.tag-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.tag-menu-btn {
+    background: transparent;
+    padding: 5px;
+    opacity: 0.5;
+    font-size: 1rem;
+    transition: opacity 0.3s;
+}
+
+.tag-menu-btn:hover {
+    opacity: 1;
+    background: none;
+    transform: scale(1.3);
 }
 
 .task-delete {
-    flex: 0 0 30px; /* Не растет, не сжимается, ширина 30px */
-    margin-left: auto; /* Дополнительный толчок вправо */
-    background: none;
-    border: none;
-    cursor: pointer;
+    background: transparent;
+    padding: 5px;
+    font-size: 1rem;
+    color: #ef4444;
+    transition: transform 0.2s;
 }
 
 .task-delete:hover {
-    background-color: #cc0000;
+    background: none;
+    transform: scale(1.2);
 }
 
+/* Выпадающее меню тегов */
+.tag-dropdown {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    z-index: 100;
+    min-width: 160px;
+    padding: 10px;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+    color: #1a1a1a;
 
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: all 0.2s ease-out;
+}
+
+.tag-dropdown.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.tag-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #333;
+
+    transition:
+        background-color 0.25s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.tag-dropdown.active .tag-item {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.tag-color-circle {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    background: #ccc;
+}
+
+.tag-item:hover {
+    background-color: #eef2ff;
+    transform: translateX(3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transform: scale(1.5);
+    color: #4f46e5;
+}
+
+/* Инпут создания тега */
+.add-tag-wrapper {
+    width: 100%;
+    margin-top: 0;
+}
+
+.tag-input-field {
+    width: 100% !important;
+    box-sizing: border-box; /* КРИТИЧНО: чтобы не вылезал за границы */
+    padding: 8px;
+    border: 1px solid #6366f1;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    display: none;
+}
+
+.tag-input-field.active {
+    display: block;
+}
+
+.add-tag-btn {
+    width: 100%;
+    padding: 8px;
+    background: #f8fafc;
+    color: #6366f1;
+    border: 1px dashed #6366f1;
+    font-size: 0.75rem;
+}
+
+.add-tag-btn:hover {
+    background: #6366f1;
+    color: white;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #f1f5f9;
+    margin: 2px 0;
+}

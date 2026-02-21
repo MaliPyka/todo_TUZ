@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from ApiRouter import api_router
 from database.models import engine, Base
 from fastapi.responses import FileResponse
+from authentication_utils.auth import get_current_user
 
 
 @asynccontextmanager
@@ -20,8 +21,18 @@ app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
-async def read_index():
-    return RedirectResponse(url="/login")
+async def root(request: Request):
+    token = request.cookies.get("access_token")
+
+    if not token:
+        return RedirectResponse(url="/login")
+
+    try:
+        await get_current_user(request)
+        return RedirectResponse(url="/tasksss")
+    except Exception:
+        # Если токен битый или истек — на логин
+        return RedirectResponse(url="/login")
 
 @app.get("/register", response_class=HTMLResponse)
 async def get_register_page(request: Request):
@@ -30,6 +41,15 @@ async def get_register_page(request: Request):
 @app.get("/login", response_class=HTMLResponse)
 async def get_login_page(request: Request):
     return FileResponse("static/login.html")
+
+
+@app.get("/tasksss")
+async def get_tasks_page(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        return RedirectResponse(url="/login")
+
+    return FileResponse("static/index.html")
 
 app.include_router(api_router)
 

@@ -31,15 +31,15 @@ function login() {
         const result = await response.json()
         console.log(result);
 
-        if (result.status == 'ok') {
+        if (result.status === 'ok') {
             errorBlock.classList.add('success');
             showError("Успешный вход");
             setTimeout(() => {
-                window.location.href = "/";
+                window.location.href = "/tasksss";
             }, 1000);
         } else {
             errorBlock.classList.remove('success');
-            showError(result.Message);
+            showError(result.message);
         }
     }
 }

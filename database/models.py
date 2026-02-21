@@ -30,6 +30,7 @@ class Task(Base):
     text: Mapped[str] = mapped_column(String, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    tag: Mapped[str] = mapped_column(String, default="none")
 
 
 class User(Base):
@@ -38,3 +39,10 @@ class User(Base):
     user_id: Mapped[int] = mapped_column(primary_key=True)
     user_login: Mapped[str] = mapped_column(String, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+
+class Tag(Base):
+    __tablename__ = 'tags'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
+    tag_name: Mapped[str] = mapped_column(String, nullable=False)

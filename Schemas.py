@@ -9,3 +9,7 @@ class LoginSchema(BaseModel):
 
 class Token(BaseModel):
     access_token: str
+
+class TagSchema(BaseModel):
+    tag_name: str
+    task_id: int
