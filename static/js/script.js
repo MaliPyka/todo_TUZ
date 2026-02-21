@@ -15,7 +15,7 @@ function renderTask(text, id, is_completed, tagName = null) {
     <div class="tag-container">
         <span class="task-tag-container"></span>
 
-        <button class="tag-menu-btn">🏷️</button>
+        <button class="tag-menu-btn">🔖</button>
 
         <div class="tag-dropdown">
             <div class="tag-list"></div>
@@ -114,7 +114,7 @@ function renderTask(text, id, is_completed, tagName = null) {
     };
 
 
-    if (tagName) {
+    if (tagName !== "none") {
         tagContainer.innerHTML = `<span class="task-tag-badge">${tagName}</span>`;
     }
 
