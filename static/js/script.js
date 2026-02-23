@@ -5,30 +5,32 @@ function renderTask(text, id, is_completed, tagName = null) {
     taskDiv.className = 'task-item';
     taskDiv.dataset.id = id;
 
+    // ВНИМАНИЕ: Я удалил отсюда setAttribute('draggable', true)
+
     taskDiv.innerHTML = `
-    <input type="checkbox" class="task-checkbox" ${is_completed ? 'checked' : ''}>
+        <div class="drag-handle">⠿</div>
+        
+        <input type="checkbox" class="task-checkbox" ${is_completed ? 'checked' : ''}>
 
-    <div class="task-content">
-        <span class="task-text ${is_completed ? 'strikethrough' : ''}">${text}</span>
-    </div>
+        <div class="task-content">
+            <span class="task-text ${is_completed ? 'strikethrough' : ''}">${text}</span>
+        </div>
 
-    <div class="tag-container">
-        <span class="task-tag-container"></span>
-
-        <button class="tag-menu-btn">🔖</button>
-
-        <div class="tag-dropdown">
-            <div class="tag-list"></div>
-            <hr>
-            <div class="add-tag-wrapper">
-                <button class="add-tag-btn">+ Создать тег</button>
-                <input type="text" class="tag-input-field" placeholder="Название тега...">
+        <div class="tag-container">
+            <span class="task-tag-container"></span>
+            <button class="tag-menu-btn">🔖</button>
+            <div class="tag-dropdown">
+                <div class="tag-list"></div>
+                <hr>
+                <div class="add-tag-wrapper">
+                    <button class="add-tag-btn">+ Создать тег</button>
+                    <input type="text" class="tag-input-field" placeholder="Название тега...">
+                </div>
             </div>
         </div>
-    </div>
 
-    <button class="task-delete">⛔</button>
-`;
+        <button class="task-delete">⛔</button>
+    `;
 
     const deleteBtn = taskDiv.querySelector('.task-delete');
     const checkboxBtn = taskDiv.querySelector('.task-checkbox');
@@ -59,9 +61,7 @@ function renderTask(text, id, is_completed, tagName = null) {
 
     tagBtn.onclick = async (e) => {
         e.stopPropagation();
-
         const isActive = tagDropdown.classList.contains('active');
-
         document.querySelectorAll('.tag-dropdown.active').forEach(d => d.classList.remove('active'));
 
         if (!isActive) {
@@ -113,14 +113,17 @@ function renderTask(text, id, is_completed, tagName = null) {
         if (response.ok) taskDiv.remove();
     };
 
-
     if (tagName !== "none" && tagName !== "null" && tagName !== null) {
         tagContainer.innerHTML = `<span class="task-tag-badge">${tagName}</span>`;
     }
 
+    // ВНИМАНИЕ: Я удалил отсюда все старые обработчики (dragstart, dragend, dragover)!
+    // Теперь всем управляет библиотека.
+
     list.prepend(taskDiv);
 }
 
+// ВНИМАНИЕ: Я удалил функцию getDragAfterElement, она больше не нужна
 
 async function loadTagsForMenu(container, taskId, badgeElement, dropdownElement) {
     container.innerHTML = '<div style="font-size: 0.8rem; padding: 5px;">Загрузка...</div>';
@@ -130,12 +133,11 @@ async function loadTagsForMenu(container, taskId, badgeElement, dropdownElement)
         const tags = await response.json();
 
         container.innerHTML = '';
-        
+
         tags.forEach((tag, index) => {
             const item = document.createElement('div');
             item.className = 'tag-item';
             item.style.transitionDelay = `${index * 0.05}s`;
-            // Создаем структуру внутри элемента
             item.innerHTML = `
                 <div class="tag-item-left" style="display: flex; align-items: center;">
                     <span class="tag-color-circle"></span>
@@ -143,7 +145,6 @@ async function loadTagsForMenu(container, taskId, badgeElement, dropdownElement)
                 </div>
                 <span class="delete-tag-icon">×</span>
             `;
-
 
             item.onclick = async (e) => {
                 e.stopPropagation();
@@ -159,17 +160,16 @@ async function loadTagsForMenu(container, taskId, badgeElement, dropdownElement)
                 }
             };
 
-            // Логика удаления тега
             const deleteIcon = item.querySelector('.delete-tag-icon');
             deleteIcon.onclick = async (e) => {
                 e.stopPropagation();
-                
-                const delResponse = await fetch(`/tasks/tags/delete/${tag.id}`, { 
-                    method: 'DELETE' 
+
+                const delResponse = await fetch(`/tasks/tags/delete/${tag.id}`, {
+                    method: 'DELETE'
                 });
 
                 if (delResponse.ok) {
-                    item.remove(); 
+                    item.remove();
 
                     document.querySelectorAll('.task-tag-badge').forEach(badge => {
                         if (badge.textContent === tag.tag_name) {
@@ -237,5 +237,29 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) {
         console.error("Не удалось загрузить задачи");
+    }
+});
+
+// Инициализация библиотеки SortableJS
+document.addEventListener('DOMContentLoaded', function() {
+    const taskList = document.getElementById('taskList');
+
+    if (taskList) {
+        Sortable.create(taskList, {
+            animation: 150,
+            handle: '.drag-handle', // Тянем ТОЛЬКО за ручку
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            chosenClass: 'sortable-chosen',
+            swapThreshold: 0.65,
+
+            // Здесь в будущем ты добавишь логику сохранения порядка в БД
+            onEnd: function (evt) {
+                console.log(`Задача перемещена с ${evt.oldIndex} на ${evt.newIndex} позицию`);
+                // const movedElement = evt.item;
+                // const taskId = movedElement.dataset.id;
+                // fetch('/tasks/reorder', ...)
+            }
+        });
     }
 });
