@@ -6,7 +6,10 @@ from datetime import datetime
 
 DB_PATH = 'database.db'
 
-engine = create_async_engine(f"sqlite+aiosqlite:///{DB_PATH}")
+engine = create_async_engine(
+    f"sqlite+aiosqlite:///{DB_PATH}",
+    execution_options={"insert_returning": False}
+)
 
 async_session = async_sessionmaker(
     bind=engine,
@@ -30,7 +33,7 @@ class Task(Base):
     text: Mapped[str] = mapped_column(String, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
-    tag: Mapped[str] = mapped_column(String, default="none")
+    tag: Mapped[str] = mapped_column(String, default="none", server_default="none")
 
 
 class User(Base):

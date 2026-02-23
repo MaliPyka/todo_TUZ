@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, HTTPException, Depends
-from database.request import create_task, get_task, delete_task, update_task_tag, update_task_status, registration, create_tag, get_all_users_tags, get_user_by_login
+from database.request import create_task, get_task, delete_task, update_task_tag, update_task_status, registration, create_tag, get_all_users_tags, get_user_by_login, delete_tag
 from Schemas import TaskSchema, LoginSchema, TagSchema
 
 from authentication_utils.auth import create_access_token, get_current_user
@@ -77,3 +77,12 @@ async def cmd_update_task(data: TagSchema, user_id: int = Depends(get_current_us
     except Exception as e:
         return {"message": str(e)}
 
+
+@api_router.delete("/tasks/tags/delete/{tag_id}")
+async def delete_tag_cmd(tag_id: int, user_id: int = Depends(get_current_user),):
+    try:
+        await delete_tag(tag_id, user_id)
+        return {"message": "Tag deleted"}
+    except Exception as e:
+        return {"message": str(e)}
+    

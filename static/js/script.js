@@ -114,7 +114,7 @@ function renderTask(text, id, is_completed, tagName = null) {
     };
 
 
-    if (tagName !== "none") {
+    if (tagName !== "none" && tagName !== "null" && tagName !== null) {
         tagContainer.innerHTML = `<span class="task-tag-badge">${tagName}</span>`;
     }
 
@@ -130,15 +130,20 @@ async function loadTagsForMenu(container, taskId, badgeElement, dropdownElement)
         const tags = await response.json();
 
         container.innerHTML = '';
+        
         tags.forEach((tag, index) => {
             const item = document.createElement('div');
             item.className = 'tag-item';
             item.style.transitionDelay = `${index * 0.05}s`;
-
+            // Создаем структуру внутри элемента
             item.innerHTML = `
-                <span class="tag-color-circle" style="background-color: #ccc"></span>
-                <span class="tag-name">${tag.tag_name}</span>
+                <div class="tag-item-left" style="display: flex; align-items: center;">
+                    <span class="tag-color-circle"></span>
+                    <span class="tag-name">${tag.tag_name}</span>
+                </div>
+                <span class="delete-tag-icon">×</span>
             `;
+
 
             item.onclick = async (e) => {
                 e.stopPropagation();
@@ -153,10 +158,41 @@ async function loadTagsForMenu(container, taskId, badgeElement, dropdownElement)
                     dropdownElement.classList.remove('active');
                 }
             };
+
+            // Логика удаления тега
+            const deleteIcon = item.querySelector('.delete-tag-icon');
+            deleteIcon.onclick = async (e) => {
+                e.stopPropagation();
+                
+                const delResponse = await fetch(`/tasks/tags/delete/${tag.id}`, { 
+                    method: 'DELETE' 
+                });
+
+                if (delResponse.ok) {
+                    item.remove(); 
+
+                    document.querySelectorAll('.task-tag-badge').forEach(badge => {
+                        if (badge.textContent === tag.tag_name) {
+                            badge.remove();
+                        }
+                    });
+
+                    if (badgeElement.textContent === tag.tag_name) {
+                        badgeElement.innerHTML = '';
+                    }
+                }
+            };
+
             container.appendChild(item);
         });
+
+        if (tags.length === 0) {
+            container.innerHTML = '<div style="font-size: 0.8rem; padding: 5px; color: gray;">Тегов пока нет</div>';
+        }
+
     } catch (e) {
-        container.innerHTML = 'Ошибка загрузки';
+        console.error("Ошибка загрузки тегов:", e);
+        container.innerHTML = '<div style="color: red; padding: 5px;">Ошибка загрузки</div>';
     }
 }
 

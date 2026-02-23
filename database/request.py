@@ -77,6 +77,27 @@ async def update_task_tag(tag_name: str, task_id: int, user_id: int):
         await session.execute(update(Task).where(Task.id == task_id, Task.user_id == user_id).values(tag=tag_name))
         await session.commit()
 
+async def delete_tag(tag_id: int, user_id: int):
+    async with async_session() as session:
+        result = await session.execute(
+            select(Tag.tag_name).where(Tag.id == tag_id, Tag.user_id == user_id)
+        )
+        tag_name = result.scalar_one_or_none()
+
+        if not tag_name:
+            return 
+        await session.execute(
+            update(Task)
+            .where(Task.tag == tag_name, Task.user_id == user_id)
+            .values(tag="none")
+        )
+        await session.execute(
+            delete(Tag).where(Tag.id == tag_id)
+        )
+
+        await session.commit()
+        
+
 
 
 

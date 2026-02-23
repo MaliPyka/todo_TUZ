@@ -9,7 +9,6 @@ from database.models import engine, Base
 from fastapi.responses import FileResponse
 from authentication_utils.auth import get_current_user
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
@@ -31,7 +30,6 @@ async def root(request: Request):
         await get_current_user(request)
         return RedirectResponse(url="/tasksss")
     except Exception:
-        # Если токен битый или истек — на логин
         return RedirectResponse(url="/login")
 
 @app.get("/register", response_class=HTMLResponse)
