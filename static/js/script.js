@@ -5,7 +5,6 @@ function renderTask(text, id, is_completed, tagName = null) {
     taskDiv.className = 'task-item';
     taskDiv.dataset.id = id;
 
-    // ВНИМАНИЕ: Я удалил отсюда setAttribute('draggable', true)
 
     taskDiv.innerHTML = `
         <div class="drag-handle">⠿</div>
@@ -41,21 +40,24 @@ function renderTask(text, id, is_completed, tagName = null) {
     const tagInput = taskDiv.querySelector('.tag-input-field');
     const tagContainer = taskDiv.querySelector('.task-tag-container');
 
-    if (is_completed) {
-        textSpan.style.textDecoration = 'line-through';
-        textSpan.style.color = 'gray';
-    }
 
     checkboxBtn.addEventListener('change', async function() {
-        textSpan.style.textDecoration = this.checked ? 'line-through' : 'none';
-        textSpan.style.color = this.checked ? 'gray' : 'black';
+        // Просто включаем или выключаем класс в зависимости от галочки
+        if (this.checked) {
+            textSpan.classList.add('strikethrough');
+        } else {
+            textSpan.classList.remove('strikethrough');
+        }
 
         const response = await fetch(`/tasks/${id}/status?status=${this.checked}`, {
             method: "PATCH"
         });
 
         if (!response.ok) {
-            alert("Не удалось изменить статус!")
+            alert("Не удалось изменить статус!");
+            // Если сервер выдал ошибку, откатываем визуал обратно
+            this.checked = !this.checked;
+            textSpan.classList.toggle('strikethrough');
         }
     });
 
@@ -117,13 +119,9 @@ function renderTask(text, id, is_completed, tagName = null) {
         tagContainer.innerHTML = `<span class="task-tag-badge">${tagName}</span>`;
     }
 
-    // ВНИМАНИЕ: Я удалил отсюда все старые обработчики (dragstart, dragend, dragover)!
-    // Теперь всем управляет библиотека.
-
     list.prepend(taskDiv);
 }
 
-// ВНИМАНИЕ: Я удалил функцию getDragAfterElement, она больше не нужна
 
 async function loadTagsForMenu(container, taskId, badgeElement, dropdownElement) {
     container.innerHTML = '<div style="font-size: 0.8rem; padding: 5px;">Загрузка...</div>';
@@ -247,19 +245,38 @@ document.addEventListener('DOMContentLoaded', function() {
     if (taskList) {
         Sortable.create(taskList, {
             animation: 150,
-            handle: '.drag-handle', // Тянем ТОЛЬКО за ручку
+            handle: '.drag-handle',
             ghostClass: 'sortable-ghost',
             dragClass: 'sortable-drag',
             chosenClass: 'sortable-chosen',
             swapThreshold: 0.65,
 
-            // Здесь в будущем ты добавишь логику сохранения порядка в БД
-            onEnd: function (evt) {
-                console.log(`Задача перемещена с ${evt.oldIndex} на ${evt.newIndex} позицию`);
-                // const movedElement = evt.item;
-                // const taskId = movedElement.dataset.id;
-                // fetch('/tasks/reorder', ...)
+            // добавить логику сохранения порядка в БД
+            onEnd: async function (evt) {
+        // Если позиция не изменилась (просто кликнули и отпустили), ничего не делаем
+        if (evt.oldIndex === evt.newIndex) return;
+
+        // Собираем все карточки задач из списка
+        const taskElements = document.querySelectorAll('.task-item');
+        
+        // Создаем массив ID в новом порядке: [5, 2, 8, 1...]
+        const newOrderIds = Array.from(taskElements).map(el => parseInt(el.dataset.id));
+
+        console.log(newOrderIds)
+
+        try {
+            const response = await fetch('/tasks/position/update', {
+                method: 'PATCH', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: newOrderIds })
+            });
+
+            if (!response.ok) {
+                console.error("Ошибка сохранения порядка");
             }
-        });
+        } catch (e) {
+            console.error(e);
+        }
     }
-});
+})
+}});

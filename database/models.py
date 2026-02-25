@@ -34,6 +34,7 @@ class Task(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
     tag: Mapped[str] = mapped_column(String, default="none", server_default="none")
+    position: Mapped[int] = mapped_column(Integer, index=True)
 
 
 class User(Base):

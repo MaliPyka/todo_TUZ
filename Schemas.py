@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import List
 
 class TaskSchema(BaseModel):
     text: str
@@ -11,5 +12,8 @@ class Token(BaseModel):
     access_token: str
 
 class TagSchema(BaseModel):
-    tag_name: str
+    tag_name: str = Field(max_length=12)
     task_id: int
+
+class TasksId(BaseModel):
+    id: List[int]

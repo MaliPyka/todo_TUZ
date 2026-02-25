@@ -1,6 +1,8 @@
+from typing import List
+
 from fastapi import APIRouter, Response, HTTPException, Depends
-from database.request import create_task, get_task, delete_task, update_task_tag, update_task_status, registration, create_tag, get_all_users_tags, get_user_by_login, delete_tag
-from Schemas import TaskSchema, LoginSchema, TagSchema
+from database.request import create_task, get_task, delete_task, update_task_tag, update_task_status, reorder_posititon, registration, create_tag, get_all_users_tags, get_user_by_login, delete_tag
+from Schemas import TaskSchema, LoginSchema, TagSchema, TasksId
 
 from authentication_utils.auth import create_access_token, get_current_user
 from authentication_utils.auth_cmd import set_hashed_password, verify_hashed_password
@@ -86,3 +88,15 @@ async def delete_tag_cmd(tag_id: int, user_id: int = Depends(get_current_user),)
     except Exception as e:
         return {"message": str(e)}
     
+
+@api_router.patch("/tasks/position/update")
+async def update_position_cmd(tasks_id: TasksId, user_id: int = Depends(get_current_user)):
+    new_position = 1
+    try:
+        for id in tasks_id.id:
+            await reorder_posititon(id, new_position, user_id)
+            new_position += 1
+    except Exception as e:
+        return {"Exception": e}
+    
+    return {"message": "Positions updated"}
